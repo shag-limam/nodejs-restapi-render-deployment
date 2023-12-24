@@ -1,42 +1,33 @@
-const User = require("../models/User");
+const Restaurant = require("../models/Restaurant");
 
-const createUser = async (req, res, next) => {
+const createRestaurant = async (req, res, next) => {
   try {
-    const { name, email } = req.body;
-    if (!name || !email) {
+    const {
+      name,
+      address,
+      borough,
+      cuisine,
+      grades,
+      restaurant_id
+    } = req.body;
+
+    if (!name || !address || !borough || !cuisine || !grades || !restaurant_id) {
       res.status(400);
-      return next(new Error("name & email fields are required"));
+      return next(new Error("All restaurant fields are required"));
     }
 
-    // check if user already exists
-    const isUserExists = await User.findOne({ email });
-
-    if (isUserExists) {
-      res.status(404);
-      return next(new Error("User already exists"));
-    }
-
-    const user = await User.create({
-      name, email
+    const restaurant = await Restaurant.create({
+      name,
+      address,
+      borough,
+      cuisine,
+      grades,
+      restaurant_id
     });
 
     res.status(200).json({
       success: true,
-      user,
-    });
-  } catch (error) {
-    console.log(error);
-    return next(error);
-  }
-}
-
-const getUsers = async (req, res, next) => {
-  try {
-    const users = await User.find();
-
-    res.status(200).json({
-      success: true,
-      users,
+      restaurant,
     });
   } catch (error) {
     console.log(error);
@@ -44,19 +35,13 @@ const getUsers = async (req, res, next) => {
   }
 };
 
-const getUser = async (req, res, next) => {
-  const { id } = req.params;
+const getRestaurants = async (req, res, next) => {
   try {
-    const user = await User.findById(id);
-
-    if (!user) {
-      res.status(404);
-      return next(new Error("User not found"));
-    }
+    const restaurants = await Restaurant.find();
 
     res.status(200).json({
       success: true,
-      user,
+      restaurants,
     });
   } catch (error) {
     console.log(error);
@@ -64,17 +49,37 @@ const getUser = async (req, res, next) => {
   }
 };
 
-const updateUser = async (req, res, next) => {
+const getRestaurant = async (req, res, next) => {
   const { id } = req.params;
   try {
-    const user = await User.findById(id);
+    const restaurant = await Restaurant.findById(id);
 
-    if (!user) {
+    if (!restaurant) {
       res.status(404);
-      return next(new Error("User not found"));
+      return next(new Error("Restaurant not found"));
     }
 
-    const updatedUser = await User.findByIdAndUpdate(
+    res.status(200).json({
+      success: true,
+      restaurant,
+    });
+  } catch (error) {
+    console.log(error);
+    return next(error);
+  }
+};
+
+const updateRestaurant = async (req, res, next) => {
+  const { id } = req.params;
+  try {
+    const restaurant = await Restaurant.findById(id);
+
+    if (!restaurant) {
+      res.status(404);
+      return next(new Error("Restaurant not found"));
+    }
+
+    const updatedRestaurant = await Restaurant.findByIdAndUpdate(
       id,
       {
         $set: req.body,
@@ -86,7 +91,7 @@ const updateUser = async (req, res, next) => {
 
     res.status(200).json({
       success: true,
-      updatedUser,
+      updatedRestaurant,
     });
   } catch (error) {
     console.log(error);
@@ -94,21 +99,21 @@ const updateUser = async (req, res, next) => {
   }
 };
 
-const deleteUser = async (req, res, next) => {
+const deleteRestaurant = async (req, res, next) => {
   const { id } = req.params;
   try {
-    const user = await User.findById(id);
+    const restaurant = await Restaurant.findById(id);
 
-    if (!user) {
+    if (!restaurant) {
       res.status(404);
-      return next(new Error("User not found"));
+      return next(new Error("Restaurant not found"));
     }
 
-    await User.findByIdAndDelete(id);
+    await Restaurant.findByIdAndDelete(id);
 
     res.status(200).json({
       success: true,
-      message: "User has been deleted.",
+      message: "Restaurant has been deleted.",
     });
   } catch (error) {
     console.log(error);
@@ -117,9 +122,9 @@ const deleteUser = async (req, res, next) => {
 };
 
 module.exports = {
-  getUser,
-  getUsers,
-  createUser,
-  updateUser,
-  deleteUser,
+  getRestaurant,
+  getRestaurants,
+  createRestaurant,
+  updateRestaurant,
+  deleteRestaurant,
 };
